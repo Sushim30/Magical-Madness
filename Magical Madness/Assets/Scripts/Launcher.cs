@@ -5,8 +5,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using System.Linq;
-
-
 public class Launcher : MonoBehaviourPunCallbacks
 {
     public static Launcher instance;
@@ -57,12 +55,14 @@ public class Launcher : MonoBehaviourPunCallbacks
         RoomNameText.text = PhotonNetwork.CurrentRoom.Name;
 
         Player[] players = PhotonNetwork.PlayerList;
+
         foreach(Transform child in PlayerListContent)
         {
             Destroy(child.gameObject);  // this was added to delete all the items before creating a new room that were previously available in any previous room
         }
         for(int i=0; i < players.Count(); i++)
         {
+            Debug.Log("player names added");
             Instantiate(playerListItemPrefab, PlayerListContent).GetComponent<PlayerListItem>().SetUp(players[i]);                                                       
         }
         startGameButton.SetActive(PhotonNetwork.IsMasterClient);
