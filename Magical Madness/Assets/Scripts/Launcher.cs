@@ -23,12 +23,12 @@ public class Launcher : MonoBehaviourPunCallbacks
         instance = this; 
     }
 
-    private void Start()
+    public void StartedConnecting()
     {
         PhotonNetwork.ConnectUsingSettings();
         Debug.Log("connecting");
     }
-
+    
    public override void OnConnectedToMaster()
     {
         PhotonNetwork.JoinLobby();

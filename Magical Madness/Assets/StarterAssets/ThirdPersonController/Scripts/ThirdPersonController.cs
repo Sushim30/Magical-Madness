@@ -134,7 +134,7 @@ namespace StarterAssets
             }
             rb = GetComponent<Rigidbody>();
             PV = GetComponent<PhotonView>();
-
+            _controller = FindObjectOfType<CharacterController>();
         }
 
         private void Start()

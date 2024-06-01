@@ -10,7 +10,7 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 public class PlayerManager : MonoBehaviour
 {
     PhotonView PV;
-    GameObject controller;
+    public GameObject controller;
     Animator animator;
     int kills;
     int deaths;

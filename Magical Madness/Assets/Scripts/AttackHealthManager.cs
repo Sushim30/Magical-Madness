@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using UnityEngine.InputSystem;
 using System.IO;
+using UnityEngine.UI;
 
 public class AttackManager : MonoBehaviourPunCallbacks, IDamagable
 {
@@ -11,6 +12,8 @@ public class AttackManager : MonoBehaviourPunCallbacks, IDamagable
     [SerializeField] private AudioSource deathSound;
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] private Camera cam;
+
+    public Slider slider;
 
     private PhotonView PV;
     public float spawnDistance = 1.4f;
@@ -28,8 +31,9 @@ public class AttackManager : MonoBehaviourPunCallbacks, IDamagable
     {
         anim = GetComponent<Animator>();
         currentHealth = maxHealth;
-        PV = GetComponent<PhotonView>();
+        slider.value = maxHealth;
 
+        PV = GetComponent<PhotonView>();
         // Find and assign the PlayerManager dynamically
         playerManager = FindObjectOfType<PlayerManager>();
         if (playerManager == null)
@@ -91,7 +95,7 @@ public class AttackManager : MonoBehaviourPunCallbacks, IDamagable
     void RPC_TakeDamage(int damage, PhotonMessageInfo info)
     {
         currentHealth -= damage;
-
+        slider.value = currentHealth;
         if (currentHealth <= 0)
         {
             PlayerManager.Find(info.Sender).GetKill();
@@ -111,7 +115,16 @@ public class AttackManager : MonoBehaviourPunCallbacks, IDamagable
             Debug.LogError("playerManager is null. Ensure it is assigned properly.");
         }
     }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!PV.IsMine) return;  // Only process collisions for the local player
 
+        if (collision.collider.tag=="ball")
+        {
+            TakeDamage(75);
+            Debug.Log("took damage");
+        }
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (!PV.IsMine) return;  // Only process collisions for the local player
