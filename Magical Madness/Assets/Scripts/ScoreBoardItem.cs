@@ -18,10 +18,10 @@ public class ScoreBoardItem : MonoBehaviourPunCallbacks
     {
         this.player = player;
         usernameText.text = player.NickName;
-        updateStats();
+        UpdateStats();
     }
 
-    void updateStats()
+    void UpdateStats()
     {
         if (player.CustomProperties.TryGetValue("kills", out object kills))
         {
@@ -40,19 +40,13 @@ public class ScoreBoardItem : MonoBehaviourPunCallbacks
         {
             DeathText.text = "0";
         }
-
-        // Notify the scoreboard to update
-        FindObjectOfType<ScoreBoard>().UpdateScoreboard();
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        if (targetPlayer == player)
+        if (targetPlayer == player && (changedProps.ContainsKey("kills") || changedProps.ContainsKey("deaths")))
         {
-            if (changedProps.ContainsKey("kills") || changedProps.ContainsKey("deaths"))
-            {
-                updateStats();
-            }
+            UpdateStats();
         }
     }
 }

@@ -13,7 +13,8 @@ public class ScoreBoard : MonoBehaviourPunCallbacks
     [SerializeField] CanvasGroup CanvasGroup;
     [SerializeField] GameObject textHolder;
 
-    Dictionary<Player, ScoreBoardItem> scoreboardItems = new Dictionary<Player, ScoreBoardItem>();
+    private Dictionary<Player, ScoreBoardItem> scoreboardItems = new Dictionary<Player, ScoreBoardItem>();
+    private List<ScoreBoardItem> itemPool = new List<ScoreBoardItem>();
 
     private void Start()
     {
@@ -28,15 +29,30 @@ public class ScoreBoard : MonoBehaviourPunCallbacks
 
     void AddScoreboardItems(Player player)
     {
-        ScoreBoardItem item = Instantiate(scoreboardItemPrefab, container).GetComponent<ScoreBoardItem>();
+        ScoreBoardItem item;
+        if (itemPool.Count > 0)
+        {
+            item = itemPool[0];
+            itemPool.RemoveAt(0);
+            item.gameObject.SetActive(true);
+        }
+        else
+        {
+            item = Instantiate(scoreboardItemPrefab, container).GetComponent<ScoreBoardItem>();
+        }
+
         item.Initialize(player);
         scoreboardItems[player] = item;
     }
 
     void RemoveScoreboardItem(Player player)
     {
-        Destroy(scoreboardItems[player].gameObject);
-        scoreboardItems.Remove(player);
+        if (scoreboardItems.TryGetValue(player, out ScoreBoardItem item))
+        {
+            item.gameObject.SetActive(false);
+            itemPool.Add(item);
+            scoreboardItems.Remove(player);
+        }
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -71,15 +87,13 @@ public class ScoreBoard : MonoBehaviourPunCallbacks
             .ThenBy(p => p.CustomProperties.ContainsKey("deaths") ? (int)p.CustomProperties["deaths"] : 0)
             .ToList();
 
-        // Remove all current items
+        // Hide all current items without destroying them
         foreach (Transform child in container)
         {
-            Destroy(child.gameObject);
+            child.gameObject.SetActive(false);
         }
 
-        scoreboardItems.Clear();
-
-        // Add sorted items
+        // Reuse or add sorted items
         foreach (Player player in sortedPlayers)
         {
             AddScoreboardItems(player);
